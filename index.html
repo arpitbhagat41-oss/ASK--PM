@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASK-PM | AI-Driven Personal Finance Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+    .glass-card { background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(148, 163, 184, 0.15); backdrop-filter: blur(10px); }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+  <!-- Top Navbar -->
+  <header class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 pb-4 border-b border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-slate-950 text-lg shadow-lg">
+        AP
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-white">ASK-PM <span class="text-xs font-medium bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full ml-1">AI v1.0</span></h1>
+        <p class="text-xs text-slate-400">ASK Portfolio Manager • Smart Expense & Savings Engine</p>
+      </div>
+    </div>
+    <div class="mt-4 md:mt-0 flex items-center gap-4">
+      <div class="text-right">
+        <p class="text-xs text-slate-400">Monthly Income Goal</p>
+        <p class="text-sm font-semibold text-emerald-400">₹50,000 / mo</p>
+      </div>
+      <span class="text-xs bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-300">Team A•S•K•P•M</span>
+    </div>
+  </header>
+
+  <!-- Main Grid -->
+  <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left & Center Columns (Metrics, Add Expense, Charts) -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-slate-400 uppercase tracking-wider">Total Spent</p>
+          <h2 id="total-spent" class="text-2xl font-bold text-rose-400 mt-1">₹14,200</h2>
+          <p class="text-xs text-slate-400 mt-2">28.4% of monthly budget</p>
+        </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-slate-400 uppercase tracking-wider">Safe to Spend</p>
+          <h2 id="safe-spend" class="text-2xl font-bold text-cyan-400 mt-1">₹25,800</h2>
+          <p class="text-xs text-slate-400 mt-2">Auto-adjusted by AI</p>
+        </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-slate-400 uppercase tracking-wider">Projected Savings</p>
+          <h2 id="projected-savings" class="text-2xl font-bold text-emerald-400 mt-1">₹10,000</h2>
+          <p class="text-xs text-emerald-400/80 mt-2">Target: 20% (₹10,000)</p>
+        </div>
+      </div>
+
+      <!-- Add Expense + AI Auto-Categorizer -->
+      <div class="glass-card p-6 rounded-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-semibold text-lg">Smart Expense Entry</h3>
+          <span class="text-xs text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-md">✨ AI Auto-Tagging Active</span>
+        </div>
+        <form id="expense-form" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <input type="text" id="exp-desc" placeholder="e.g., Zomato Lunch, Uber, Netflix" required
+            class="sm:col-span-2 bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+          <input type="number" id="exp-amount" placeholder="Amount (₹)" required min="1"
+            class="bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+          <button type="submit"
+            class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold rounded-xl px-4 py-2.5 text-sm transition cursor-pointer">
+            + Add Expense
+          </button>
+        </form>
+      </div>
+
+      <!-- Chart & Recent Transactions -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Spending Chart -->
+        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+          <h3 class="font-semibold text-base mb-4">AI Category Breakdown</h3>
+          <div class="relative h-56 w-full flex items-center justify-center">
+            <canvas id="spendingChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Transaction Log -->
+        <div class="glass-card p-6 rounded-2xl">
+          <h3 class="font-semibold text-base mb-4">Recent Smart Logs</h3>
+          <ul id="transaction-list" class="space-y-3 max-h-56 overflow-y-auto pr-1 text-sm">
+            <!-- Populated by JS -->
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: ASK AI Financial Advisor -->
+    <div class="glass-card p-6 rounded-2xl flex flex-col justify-between h-full min-h-[520px]">
+      <div>
+        <div class="flex items-center gap-2 pb-4 border-b border-slate-800">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <h3 class="font-semibold text-lg">ASK-PM AI Strategist</h3>
+        </div>
+
+        <!-- Auto AI Alert -->
+        <div id="ai-insight-box" class="mt-4 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200 leading-relaxed">
+          <strong>AI Strategy Tip:</strong> Your Food & Dining spend is currently ₹4,200. Capping weekend takeout can boost your SIP portfolio by <strong>₹2,500/month</strong>.
+        </div>
+
+        <!-- Chat Window -->
+        <div id="chat-box" class="mt-4 space-y-3 max-h-72 overflow-y-auto pr-1 text-sm">
+          <div class="bg-slate-800/90 p-3 rounded-xl text-slate-200">
+            Hi! I'm <strong>ASK-PM</strong>. Ask me if you can afford a purchase, how to optimize your budget, or where to invest your savings!
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Prompt Chips & Input -->
+      <div class="mt-4 pt-3 border-t border-slate-800">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <button onclick="quickAsk('Can I afford a ₹4,000 trip?')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg transition cursor-pointer">
+            Can I afford a ₹4,000 trip?
+          </button>
+          <button onclick="quickAsk('Suggest a savings strategy')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg transition cursor-pointer">
+            Savings strategy
+          </button>
+        </div>
+        <form id="chat-form" class="flex gap-2">
+          <input type="text" id="chat-input" placeholder="Ask your AI Portfolio Manager..." required
+            class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-500" />
+          <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-xl text-sm transition cursor-pointer">
+            Ask
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Initial Sample Data
+    const MONTHLY_INCOME = 50000;
+    const SAVINGS_TARGET = 10000;
+    let transactions = [
+      { desc: "House Rent & WiFi", amount: 8500, category: "Bills & Rent" },
+      { desc: "Zomato & Swiggy Orders", amount: 3200, category: "Food & Dining" },
+      { desc: "Fuel & Metro Pass", amount: 1500, category: "Transport" },
+      { desc: "Spotify & Prime", amount: 1000, category: "Subscriptions" }
+    ];
+
+    // AI Keyword Categorizer
+    function aiCategorize(desc) {
+      const d = desc.toLowerCase();
+      if (d.includes("zomato") || d.includes("swiggy") || d.includes("food") || d.includes("lunch") || d.includes("cafe") || d.includes("coffee")) return "Food & Dining";
+      if (d.includes("uber") || d.includes("ola") || d.includes("fuel") || d.includes("petrol") || d.includes("flight") || d.includes("train")) return "Transport";
+      if (d.includes("rent") || d.includes("bill") || d.includes("electricity") || d.includes("wifi") || d.includes("recharge")) return "Bills & Rent";
+      if (d.includes("netflix") || d.includes("spotify") || d.includes("prime") || d.includes("subscription")) return "Subscriptions";
+      return "Lifestyle & Shopping";
+    }
+
+    // Chart.js Initialization
+    const ctx = document.getElementById('spendingChart').getContext('2d');
+    let spendingChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: [],
+        datasets: [{
+          data: [],
+          backgroundColor: ['#10b981', '#06b6d4', '#f43f5e', '#f59e0b', '#8b5cf6'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { color: '#cbd5e1', font: { size: 11 } } } }
+      }
+    });
+
+    // Update UI & Recalculate AI Budget
+    function updateDashboard() {
+      const totalSpent = transactions.reduce((sum, t) => sum + t.amount, 0);
+      const safeToSpend = Math.max(0, MONTHLY_INCOME - SAVINGS_TARGET - totalSpent);
+      const projectedSavings = Math.max(0, MONTHLY_INCOME - totalSpent);
+
+      document.getElementById('total-spent').innerText = `₹${totalSpent.toLocaleString('en-IN')}`;
+      document.getElementById('safe-spend').innerText = `₹${safeToSpend.toLocaleString('en-IN')}`;
+      document.getElementById('projected-savings').innerText = `₹${projectedSavings.toLocaleString('en-IN')}`;
+
+      // Update Transaction List
+      const listEl = document.getElementById('transaction-list');
+      listEl.innerHTML = transactions.slice().reverse().map(t => `
+        <li class="flex justify-between items-center bg-slate-900/70 px-3.5 py-2.5 rounded-xl border border-slate-800">
+          <div>
+            <p class="font-medium text-slate-200">${t.desc}</p>
+            <span class="text-[11px] text-cyan-400">${t.category}</span>
+          </div>
+          <span class="font-semibold text-rose-400">-₹${t.amount.toLocaleString('en-IN')}</span>
+        </li>
+      `).join('');
+
+      // Update Chart
+      const categoryTotals = {};
+      transactions.forEach(t => {
+        categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+      });
+      spendingChart.data.labels = Object.keys(categoryTotals);
+      spendingChart.data.datasets[0].data = Object.values(categoryTotals);
+      spendingChart.update();
+
+      // Dynamic AI Insight
+      const foodSpend = categoryTotals["Food & Dining"] || 0;
+      const insightBox = document.getElementById('ai-insight-box');
+      if (safeToSpend < 5000) {
+        insightBox.className = "mt-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-200 leading-relaxed";
+        insightBox.innerHTML = `<strong>⚠️ AI Budget Alert:</strong> Your safe-to-spend buffer is low (₹${safeToSpend.toLocaleString('en-IN')}). Pause non-essential shopping for 7 days to protect your ₹10,000 savings goal.`;
+      } else {
+        insightBox.className = "mt-4 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200 leading-relaxed";
+        insightBox.innerHTML = `<strong>✨ AI Strategy Tip:</strong> Food spend is ₹${foodSpend.toLocaleString('en-IN')}. You are on track to save <strong>₹${projectedSavings.toLocaleString('en-IN')}</strong> this month. Consider auto-sweeping ₹3,000 into an Index Fund.`;
+      }
+    }
+
+    // Handle New Expense
+    document.getElementById('expense-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const desc = document.getElementById('exp-desc').value;
+      const amount = parseFloat(document.getElementById('exp-amount').value);
+      const category = aiCategorize(desc);
+
+      transactions.push({ desc, amount, category });
+      document.getElementById('exp-desc').value = '';
+      document.getElementById('exp-amount').value = '';
+      updateDashboard();
+    });
+
+    // AI Chatbot Logic
+    function generateAIResponse(query) {
+      const totalSpent = transactions.reduce((sum, t) => sum + t.amount, 0);
+      const safeToSpend = Math.max(0, MONTHLY_INCOME - SAVINGS_TARGET - totalSpent);
+      const q = query.toLowerCase();
+
+      const numMatch = q.match(/\d+/);
+      if (q.includes("afford") && numMatch) {
+        const cost = parseInt(numMatch[0]);
+        if (cost <= safeToSpend) {
+          return `✅ <strong>Yes, you can afford ₹${cost.toLocaleString('en-IN')}.</strong> You still have ₹${safeToSpend.toLocaleString('en-IN')} in your safe-to-spend buffer without touching your ₹10,000 savings target.`;
+        } else {
+          return `⚠️ <strong>Not recommended right now.</strong> Spending ₹${cost.toLocaleString('en-IN')} exceeds your ₹${safeToSpend.toLocaleString('en-IN')} safe buffer and will cut into your savings goal.`;
+        }
+      }
+      if (q.includes("save") || q.includes("strategy") || q.includes("invest")) {
+        return `📊 <strong>ASK-PM 50/30/20 Strategy:</strong><br>• Keep Needs under ₹25,000<br>• Cap Wants at ₹15,000<br>• Auto-invest your remaining <strong>₹${Math.max(10000, MONTHLY_INCOME - totalSpent).toLocaleString('en-IN')}</strong> into a Nifty 50 SIP + Liquid Emergency Fund.`;
+      }
+      return `Based on your current spend of <strong>₹${totalSpent.toLocaleString('en-IN')}</strong>, you have <strong>₹${safeToSpend.toLocaleString('en-IN')}</strong> left to spend freely this month while hitting your 20% savings goal.`;
+    }
+
+    function appendChat(sender, html) {
+      const chatBox = document.getElementById('chat-box');
+      const div = document.createElement('div');
+      div.className = sender === 'user'
+        ? "bg-cyan-500/20 border border-cyan-500/30 p-3 rounded-xl text-cyan-100 ml-6 text-right"
+        : "bg-slate-800/90 p-3 rounded-xl text-slate-200 mr-4";
+      div.innerHTML = html;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function quickAsk(text) {
+      appendChat('user', text);
+      setTimeout(() => appendChat('ai', generateAIResponse(text)), 300);
+    }
+
+    document.getElementById('chat-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      quickAsk(text);
+    });
+
+    // Initial Render
+    updateDashboard();
+  </script>
+</body>
+          </html>
+          
